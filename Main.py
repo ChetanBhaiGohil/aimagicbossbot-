@@ -1,25 +1,32 @@
-import openai
-import telebot
+import requests
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
-# 🔐 તમારું Telegram BotFather ટોકન અહીં નાખો
-TELEGRAM_TOKEN = 7722984877: AAERODEAy FF4u4QxevjchMptVS 1to1mUhw0
-bot = telebot.TeleBot(TELEGRAM_TOKEN)
+# Replace with your own bot token from @BotFather
+BOT_TOKEN =7722984877:AAGpmrDr1ezgC1sQcDsH2vD18HfVDDYoo4w
 
-# 🔐 તમારું OpenAI API Key અહીં નાખો
-openai.api_key = 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
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("👋 Welcome to AI Boss Bot!\nSend me any prompt and I will generate an image!")
 
-@bot.message_handler(commands=['start'])
-def welcome(msg):
-    bot.reply_to(msg, "👋 स्वागत है Boss! તમે કઈ Image ઈચ્છો છો? બસ Prompt મોકલો!")
+async def generate_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    prompt = update.message.text
+    await update.message.reply_text("🖼️ Generating image... Please wait...")
 
-@bot.message_handler(func=lambda message: True)
-def generate_image(message):
-    prompt = message.text
-    try:
-        response = openai.Image.create(prompt=prompt, n=1, size="512x512")
-        image_url = response['data'][0]['url']
-        bot.send_photo(message.chat.id, image_url)
-    except Exception as e:
-        bot.reply_to(message, f"❌ Error:\n{str(e)}")
+    # Craiyon API (No API Key Needed)
+    response = requests.post(
+        "https://backend.craiyon.com/generate",
+        json={"prompt": prompt}
+    )
+    data = response.json()
+    if "images" in data:
+        for img in data["images"]:
+            img_bytes = bytes(img, 'utf-8')
+            await update.message.reply_photo(photo=f"data:image/png;base64,{img}")
+    else:
+        await update.message.reply_text("❌ Failed to generate image.")
 
-bot.polling()
+if __name__ == "__main__":
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, generate_image))
+    app.run_polling()
