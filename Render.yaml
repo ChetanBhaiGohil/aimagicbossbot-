@@ -1,8 +1,0 @@
-services:
-  - type: web
-    name: ai-boss-bot
-    env: python
-    region: oregon
-    buildCommand: ""
-    startCommand: python main.py
-    plan: free
