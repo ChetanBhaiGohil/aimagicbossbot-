@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
 # Replace with your own bot token from @BotFather
-BOT_TOKEN =7722984877:AAGpmrDr1ezgC1sQcDsH2vD18HfVDDYoo4w
+BOT_TOKEN =
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👋 Welcome to AI Boss Bot!\nSend me any prompt and I will generate an image!")
